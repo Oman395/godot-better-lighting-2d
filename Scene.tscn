@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://jlu7dc6ir5b4"]
+[gd_scene load_steps=26 format=3 uid="uid://jlu7dc6ir5b4"]
 
 [ext_resource type="Shader" path="res://lighting.gdshader" id="1_1glpl"]
 [ext_resource type="Texture2D" uid="uid://7ta7xud5wlis" path="res://Textures/floor_normal.png" id="2_0g5yh"]
@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://k1jklgygvlyg" path="res://Textures/wall_texture.png" id="5_g34uw"]
 [ext_resource type="Texture2D" uid="uid://cyfl82gb6iwvm" path="res://Textures/tile_normal.png" id="6_8h8xv"]
 [ext_resource type="Texture2D" uid="uid://c87nfoa8un73r" path="res://Textures/icon.svg" id="8_w1lpt"]
-[ext_resource type="Shader" path="res://depth_sensor.gdshader" id="9_4vmbc"]
 
 [sub_resource type="Environment" id="Environment_nkmcm"]
 background_mode = 3
@@ -171,10 +170,6 @@ shader = SubResource("Shader_jwb55")
 shader_parameter/ambient_amount = 0.1
 shader_parameter/light_radius = null
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_csroc"]
-shader = ExtResource("9_4vmbc")
-shader_parameter/camera_position = Vector2(300, 500)
-
 [node name="Scene Layer" type="WorldEnvironment"]
 environment = SubResource("Environment_nkmcm")
 
@@ -259,19 +254,6 @@ visible = false
 material = SubResource("ShaderMaterial_7lc2a")
 scale = Vector2(0.156, 0.156)
 texture = ExtResource("8_w1lpt")
-
-[node name="ColorRect" type="ColorRect" parent="PointLight2D"]
-visible = false
-material = SubResource("ShaderMaterial_csroc")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -390.0
-offset_top = -553.0
-offset_right = -390.0
-offset_bottom = -553.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="."]
 size_2d_override_stretch = true
