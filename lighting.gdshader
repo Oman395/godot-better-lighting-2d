@@ -18,14 +18,18 @@ uniform uint ao_step_count;
 uniform float ao_step_size;
 uniform float ao_influence : hint_range(0.0, 1.0);
 
-varying vec2 screen_pix_size;
-varying vec2 world_pos;
-varying vec2 worldPosMin;
-varying vec2 worldPosMax;
 varying mat4 inv_canvas_matrix;
 varying mat4 canvas_matrix;
+
+varying vec2 screen_pix_size;
+varying vec2 world_pos;
+
 varying vec2 screen_offset;
 varying vec2 screen_scale;
+
+// We can't avoid applying AO several times, but at least we can only
+// calculate it once
+varying float ao;
 
 // Beckmann distribution
 float kSpec(vec3 N, vec3 H, float m) {
@@ -56,6 +60,27 @@ void fragment() {
 	// from vertex() are accurate
 	vec2 world_pos_without_offset = (vec4(VERTEX, 0, 1) * inv_canvas_matrix).xy;
 	screen_offset = world_pos_without_offset - world_pos;
+	
+	ao = 1.0;
+	if(ambient_occlusion) {
+		// Ambient occlusion based on some random stuff I found on discord .-.
+		vec2 marchPos = FRAGCOORD.xy;
+		vec2 Epsilon = vec2(2.0, 0.0);
+		// These normals are horrible but they seem to work well enough
+		vec2 norm = texture_sdf_normal(screen_uv_to_sdf(SCREEN_UV));
+		float res = 0.0;
+		vec2 rp;
+		// TBH I like vaguely understand how this works but not enough to explain it
+		for(uint i = uint(1); i<ao_step_count; i++) {
+			rp = marchPos + ao_step_size*float(i)*norm * screen_pix_size;
+			res+=(1.0/pow(2.0,float(i)))*(ao_step_size*float(i)-(texture_sdf(screen_uv_to_sdf(rp * screen_pix_size))));
+		}
+		// We need an influence scaler bc otherwise I've found it to look rlly weird
+		// That's probably just a skill issue though
+		if(res >= 0.0) {
+			ao = 1.0 - ao_influence * clamp(1.0 - ao_step_size / res, 0.0, 1.0);
+		}
+	}
 }
 
 vec2 UVtoWorld(vec2 uv) {
@@ -122,27 +147,6 @@ void light() {
 		obs = 1.0 - clamp(obs, 0.0, 1.0);
 	}
 	
-	float ao = 1.0;
-	if(ambient_occlusion) {
-		// Ambient occlusion based on some random stuff I found on discord .-.
-		marchPos = FRAGCOORD.xy;
-		vec2 Epsilon = vec2(2.0, 0.0);
-		// These normals are horrible but they seem to work well enough
-		vec2 norm = texture_sdf_normal(screen_uv_to_sdf(SCREEN_UV));
-		float res = 0.0;
-		vec2 rp;
-		// TBH I like vaguely understand how this works but not enough to explain it
-		for(uint i = uint(1); i<ao_step_count; i++) {
-			rp = marchPos + ao_step_size*float(i)*norm * screen_pix_size;
-			res+=(1.0/pow(2.0,float(i)))*(ao_step_size*float(i)-(texture_sdf(screen_uv_to_sdf(rp * screen_pix_size))));
-		}
-		// We need an influence scaler bc otherwise I've found it to look rlly weird
-		// That's probably just a skill issue though
-		if(res >= 0.0) {
-			ao = 1.0 - ao_influence * clamp(1.0 - ao_step_size / res, 0.0, 1.0);
-		}
-	}
-	
 	// Finally get the world distance (including height) for the final magnitude
 	vec2 worldPos = UVtoWorld(SCREEN_UV);
 	vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z);
@@ -158,7 +162,7 @@ void light() {
 	LIGHT = COLOR * ambient_amount * dot(NORMAL, vec3(0,0,1)) * ao / float(light_count);
 	
 	vec4 specularColor = mix(vec4(1), COLOR, metallic);
-	vec4 specularAddition = specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
+	vec4 specularAddition = SPECULAR_SHININESS.a * specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
 	vec4 diffuseAddition = roughness * LIGHT_COLOR * LIGHT_ENERGY * COLOR * max(dot(NORMAL, LIGHT_DIRECTION), 0.0) * obs;
 	if(apply_distance_fade) {
 		specularAddition *= distance_fade;

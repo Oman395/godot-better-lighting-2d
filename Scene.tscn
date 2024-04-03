@@ -57,7 +57,7 @@ shader_parameter/ao_influence = 0.3
 [sub_resource type="CanvasTexture" id="CanvasTexture_wlmtn"]
 diffuse_texture = ExtResource("5_g34uw")
 normal_texture = ExtResource("3_fu2yc")
-specular_color = Color(0.317647, 0.572549, 0, 1)
+specular_color = Color(0.317647, 0.498039, 0, 1)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_5d180"]
 polygon = PackedVector2Array(100, 100, 100, 620, 150, 620, 150, 150, 1130, 150, 1130, 620, 1180, 620, 1180, 100)
@@ -240,7 +240,7 @@ anchor_mode = 0
 metadata/_edit_lock_ = true
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
-position = Vector2(789, 344)
+position = Vector2(633, 238)
 range_layer_min = -10
 range_layer_max = 10
 shadow_filter = 2
