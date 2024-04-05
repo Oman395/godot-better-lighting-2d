@@ -59,8 +59,6 @@ That's pretty much it for usage!
 
 - Lighting with a non-uniform output (I.E. a flashlight) still require a texture to help the shader know the bounds.
 
-- Zooming in and out results in some slightly odd changes in the lighting (namely, the falloff scales, because ????); this is a bug, but I have no idea what's causing it.
-
 - Individual lights can't have individual settings, such as radius; unfortunately, there's just not very much available to me in the light() function for each light. I could create a global array uniform, but I find that clunky, so for now I'm using this simplified system-- if enough people request, I might make a global array option.
 
 ## Recommendations:

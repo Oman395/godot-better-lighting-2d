@@ -19,12 +19,13 @@ adjustment_brightness = 8.0
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lj5j1"]
 shader = ExtResource("1_1glpl")
 shader_parameter/light_count = 3
+shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = true
 shader_parameter/soft_shadows = true
 shader_parameter/light_radius = 20.0
 shader_parameter/shadow_march_count = 256
-shader_parameter/shadow_march_min_step = 0.2
+shader_parameter/shadow_march_min_step = 0.05
 shader_parameter/shadow_march_step_scale = 1.0
 shader_parameter/ambient_amount = 0.1
 shader_parameter/ambient_occlusion = true
@@ -41,6 +42,7 @@ texture_repeat = 2
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0mwb2"]
 shader = ExtResource("1_1glpl")
 shader_parameter/light_count = 3
+shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = null
 shader_parameter/soft_shadows = null
@@ -65,6 +67,7 @@ polygon = PackedVector2Array(100, 100, 100, 620, 150, 620, 150, 150, 1130, 150, 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_17jtf"]
 shader = ExtResource("1_1glpl")
 shader_parameter/light_count = 3
+shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = false
 shader_parameter/soft_shadows = null
@@ -240,7 +243,7 @@ anchor_mode = 0
 metadata/_edit_lock_ = true
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
-position = Vector2(633, 238)
+position = Vector2(646, 307)
 range_layer_min = -10
 range_layer_max = 10
 shadow_filter = 2

@@ -3,6 +3,8 @@ shader_type canvas_item;
 // I hate that this is required, but godot has forced my hand-- see https://github.com/godotengine/godot-proposals/discussions/9354
 uniform int light_count;
 
+uniform float light_falloff;
+
 uniform bool apply_distance_fade;
 
 uniform bool shadows;
@@ -135,7 +137,7 @@ void light() {
 			// Prevent getting stuck on the border of objects
 			// 0.1 is a number I pulled out of my ass but it seems to work well enough
 			// light_radius*t/distToLight is the relative size of the light or something idk I'm dumb
-			d = max(d * shadow_march_step_scale, shadow_march_min_step  * light_radius*t/distToLight);
+			d = max(d * shadow_march_step_scale, screen_scale.x *  shadow_march_min_step  * light_radius*t/distToLight);
 			t += d;
 			// If we pass the light we know we're done
 			if(t >= distToLight) break;
@@ -149,20 +151,21 @@ void light() {
 	
 	// Finally get the world distance (including height) for the final magnitude
 	vec2 worldPos = UVtoWorld(SCREEN_UV);
-	vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z);
-	float worldDist = distance(vec3(0), (worldPosLight - vec3(worldPos, 0)) * vec3(screen_scale, 1));
+	vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z * screen_scale.x);
+	vec3 worldDelta = worldPosLight - vec3(worldPos, 0);
+	float worldDist = distance(vec3(0), worldDelta);
 	
 	// PBR Lighting
 	float roughness = SPECULAR_SHININESS.r;
 	float specular = 1.0 - SPECULAR_SHININESS.g;
 	float metallic = SPECULAR_SHININESS.b;
 	
-	float distance_fade = 1.0 / pow(worldDist / (200.0), 2.0);
-	
+	float distance_fade = 1.0 / pow(worldDist / (light_falloff), 2.0);
+	 
 	LIGHT = COLOR * ambient_amount * dot(NORMAL, vec3(0,0,1)) * ao / float(light_count);
 	
 	vec4 specularColor = mix(vec4(1), COLOR, metallic);
-	vec4 specularAddition = SPECULAR_SHININESS.a * specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
+	vec4 specularAddition = specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
 	vec4 diffuseAddition = roughness * LIGHT_COLOR * LIGHT_ENERGY * COLOR * max(dot(NORMAL, LIGHT_DIRECTION), 0.0) * obs;
 	if(apply_distance_fade) {
 		specularAddition *= distance_fade;
