@@ -160,7 +160,7 @@ void light() {
 	float specular = 1.0 - SPECULAR_SHININESS.g;
 	float metallic = SPECULAR_SHININESS.b;
 	
-	float distance_fade = 1.0 / pow(worldDist / (light_falloff), 2.0);
+	float distance_fade = 1.0 / pow(worldDist / (light_falloff) + 1.0, 2.0);
 	 
 	LIGHT = COLOR * ambient_amount * dot(NORMAL, vec3(0,0,1)) * ao / float(light_count);
 	
