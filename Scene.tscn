@@ -18,7 +18,7 @@ adjustment_brightness = 8.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_lj5j1"]
 shader = ExtResource("1_1glpl")
-shader_parameter/light_count = 3
+shader_parameter/light_count = 1
 shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = true
@@ -28,6 +28,7 @@ shader_parameter/shadow_march_count = 256
 shader_parameter/shadow_march_min_step = 0.05
 shader_parameter/shadow_march_step_scale = 1.0
 shader_parameter/ambient_amount = 0.1
+shader_parameter/use_directional_light_as_ambient = true
 shader_parameter/ambient_occlusion = true
 shader_parameter/ao_step_count = 6
 shader_parameter/ao_step_size = 20.0
@@ -41,7 +42,7 @@ texture_repeat = 2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0mwb2"]
 shader = ExtResource("1_1glpl")
-shader_parameter/light_count = 3
+shader_parameter/light_count = 1
 shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = null
@@ -51,6 +52,7 @@ shader_parameter/shadow_march_count = null
 shader_parameter/shadow_march_min_step = null
 shader_parameter/shadow_march_step_scale = null
 shader_parameter/ambient_amount = 0.1
+shader_parameter/use_directional_light_as_ambient = true
 shader_parameter/ambient_occlusion = false
 shader_parameter/ao_step_count = null
 shader_parameter/ao_step_size = null
@@ -66,7 +68,7 @@ polygon = PackedVector2Array(100, 100, 100, 620, 150, 620, 150, 150, 1130, 150, 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_17jtf"]
 shader = ExtResource("1_1glpl")
-shader_parameter/light_count = 3
+shader_parameter/light_count = 1
 shader_parameter/light_falloff = 200.0
 shader_parameter/apply_distance_fade = true
 shader_parameter/shadows = false
@@ -76,6 +78,7 @@ shader_parameter/shadow_march_count = null
 shader_parameter/shadow_march_min_step = null
 shader_parameter/shadow_march_step_scale = null
 shader_parameter/ambient_amount = 0.1
+shader_parameter/use_directional_light_as_ambient = true
 shader_parameter/ambient_occlusion = null
 shader_parameter/ao_step_count = null
 shader_parameter/ao_step_size = null
@@ -243,7 +246,7 @@ anchor_mode = 0
 metadata/_edit_lock_ = true
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
-position = Vector2(646, 307)
+position = Vector2(508, 412)
 range_layer_min = -10
 range_layer_max = 10
 shadow_filter = 2
@@ -260,3 +263,5 @@ texture = ExtResource("8_w1lpt")
 
 [node name="SubViewport" type="SubViewport" parent="."]
 size_2d_override_stretch = true
+
+[node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]

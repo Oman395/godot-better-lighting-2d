@@ -15,6 +15,7 @@ uniform float shadow_march_min_step;
 uniform float shadow_march_step_scale;
 
 uniform float ambient_amount : hint_range(0,1);
+uniform bool use_directional_light_as_ambient;
 uniform bool ambient_occlusion;
 uniform uint ao_step_count;
 uniform float ao_step_size;
@@ -119,7 +120,7 @@ void light() {
 	float worldspaceDistanceScale = distance(vec2(0), vec2(screen_scale)) / distance(worldspaceScaleCalcA, worldspaceScaleCalcB);
 	
 	// Ideally I'd make this its own function but texture_sdf has forced my hand
-	if(shadows) {
+	if(shadows && !LIGHT_IS_DIRECTIONAL) {
 		obs = 0.0;
 		for(uint i = uint(0); i < shadow_march_count; i++) {
 			// texture_sdf returns screenspace distance, but we want world space distance
@@ -149,28 +150,29 @@ void light() {
 		obs = 1.0 - clamp(obs, 0.0, 1.0);
 	}
 	
-	// Finally get the world distance (including height) for the final magnitude
-	vec2 worldPos = UVtoWorld(SCREEN_UV);
-	vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z * screen_scale.x);
-	vec3 worldDelta = worldPosLight - vec3(worldPos, 0);
-	float worldDist = distance(vec3(0), worldDelta);
-	
-	// PBR Lighting
-	float roughness = SPECULAR_SHININESS.r;
-	float specular = 1.0 - SPECULAR_SHININESS.g;
-	float metallic = SPECULAR_SHININESS.b;
-	
-	float distance_fade = 1.0 / pow(worldDist / (light_falloff) + 1.0, 2.0);
-	 
-	LIGHT = COLOR * ambient_amount * dot(NORMAL, vec3(0,0,1)) * ao / float(light_count);
-	
-	vec4 specularColor = mix(vec4(1), COLOR, metallic);
-	vec4 specularAddition = specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
-	vec4 diffuseAddition = roughness * LIGHT_COLOR * LIGHT_ENERGY * COLOR * max(dot(NORMAL, LIGHT_DIRECTION), 0.0) * obs;
-	if(apply_distance_fade) {
-		specularAddition *= distance_fade;
-		diffuseAddition *= distance_fade;
+	if(!use_directional_light_as_ambient || LIGHT_IS_DIRECTIONAL) LIGHT = COLOR * ambient_amount * dot(NORMAL, vec3(0,0,1)) * ao / float(light_count);
+	if(!LIGHT_IS_DIRECTIONAL) {
+		// Finally get the world distance (including height) for the final magnitude
+		vec2 worldPos = UVtoWorld(SCREEN_UV);
+		vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z * screen_scale.x);
+		vec3 worldDelta = worldPosLight - vec3(worldPos, 0);
+		float worldDist = distance(vec3(0), worldDelta);
+		
+		// PBR Lighting
+		float roughness = SPECULAR_SHININESS.r;
+		float specular = 1.0 - SPECULAR_SHININESS.g;
+		float metallic = SPECULAR_SHININESS.b;
+		
+		float distance_fade = 1.0 / pow(worldDist / (light_falloff) + 1.0, 2.0);
+		
+		vec4 specularColor = mix(vec4(1), COLOR, metallic);
+		vec4 specularAddition = specularColor * LIGHT_COLOR * LIGHT_ENERGY * max(kSpec(NORMAL, (LIGHT_DIRECTION + vec3(0,0,1)) * 0.5, specular), 0.0) * obs;
+		vec4 diffuseAddition = roughness * LIGHT_COLOR * LIGHT_ENERGY * COLOR * max(dot(NORMAL, LIGHT_DIRECTION), 0.0) * obs;
+		if(apply_distance_fade) {
+			specularAddition *= distance_fade;
+			diffuseAddition *= distance_fade;
+		}
+		LIGHT += specularAddition + diffuseAddition;
 	}
-	LIGHT += specularAddition + diffuseAddition;
 	LIGHT.a = 1.0;
 }
