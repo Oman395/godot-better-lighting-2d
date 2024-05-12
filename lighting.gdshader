@@ -6,6 +6,7 @@ uniform int light_count;
 uniform float light_falloff;
 
 uniform bool apply_distance_fade;
+uniform float object_height;
 
 uniform bool shadows;
 uniform bool soft_shadows;
@@ -155,7 +156,7 @@ void light() {
 		// Finally get the world distance (including height) for the final magnitude
 		vec2 worldPos = UVtoWorld(SCREEN_UV);
 		vec3 worldPosLight = vec3(UVtoWorld(LIGHT_POSITION.xy * screen_pix_size), LIGHT_POSITION.z * screen_scale.x);
-		vec3 worldDelta = worldPosLight - vec3(worldPos, 0);
+		vec3 worldDelta = worldPosLight - vec3(worldPos, object_height);
 		float worldDist = distance(vec3(0), worldDelta);
 		
 		// PBR Lighting
