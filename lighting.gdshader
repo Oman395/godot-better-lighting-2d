@@ -96,11 +96,18 @@ vec2 worldToUV(vec2 coord) {
 }
 
 void light() {
+	// We can figure out how much the distances should be scaled by figuring out the difference
+	// between a screenspace distance of 1px and a worldspace distanc of those points. We also
+	// need to include our scaling factor, again bc everything breaks if we don't
+	vec2 worldspaceScaleCalcA = UVtoWorld(vec2(0));
+	vec2 worldspaceScaleCalcB = UVtoWorld((1.0 / screen_scale ) * screen_pix_size);
+	float worldspaceDistanceScale = distance(vec2(0), vec2(screen_scale)) / distance(worldspaceScaleCalcA, worldspaceScaleCalcB);
+	
 	// Soft shadows based on https://iquilezles.org/articles/rmshadows/
 	vec2 marchPos = world_pos;
 	vec2 lightPos = UVtoWorld(LIGHT_POSITION.xy * screen_pix_size);
 	vec2 toLight = normalize(lightPos - marchPos);
-	
+
 	vec2 screenPos = LIGHT_VERTEX.xy;
 	vec2 lightPosScreen = LIGHT_POSITION.xy;
 	vec2 toLightScreen = normalize(lightPosScreen - screenPos);
@@ -109,16 +116,18 @@ void light() {
 	float distToLight = distance(vec2(0), (lightPos - marchPos) * screen_scale);
 	
 	// Step distance, total distance
-	float d, t = 0.0; 
+	float d, t = 0.0;
 	// Obscurity - basically, how obscured our ray is
 	float obs = 1.0;
 	
-	// We can figure out how much the distances should be scaled by figuring out the difference
-	// between a screenspace distance of 1px and a worldspace distanc of those points. We also
-	// need to include our scaling factor, again bc everything breaks if we don't
-	vec2 worldspaceScaleCalcA = UVtoWorld(vec2(0));
-	vec2 worldspaceScaleCalcB = UVtoWorld((1.0 / screen_scale ) * screen_pix_size);
-	float worldspaceDistanceScale = distance(vec2(0), vec2(screen_scale)) / distance(worldspaceScaleCalcA, worldspaceScaleCalcB);
+	float lightDistObj = texture_sdf(screen_uv_to_sdf(lightPosScreen * screen_pix_size));
+	
+	float posOffset = min(light_radius / 2.0, distToLight / worldspaceDistanceScale / 2.0);
+	if(lightDistObj < 0.0) posOffset = min(posOffset, lightDistObj + light_radius);
+	
+	lightPos -= toLight * posOffset;
+	marchPos += toLight * posOffset;
+	float distToLightForCheck = distance(vec2(0), (lightPos - marchPos) * screen_scale);
 	
 	// Ideally I'd make this its own function but texture_sdf has forced my hand
 	if(shadows && !LIGHT_IS_DIRECTIONAL) {
@@ -142,7 +151,7 @@ void light() {
 			d = max(d * shadow_march_step_scale, screen_scale.x *  shadow_march_min_step  * light_radius*t/distToLight);
 			t += d;
 			// If we pass the light we know we're done
-			if(t >= distToLight) break;
+			if(t >= distToLightForCheck) break;
 			marchPos += d * toLight;
 			// To be frank, I have no idea why we need to divide by scale here, but it works
 			screenPos += (d / worldspaceDistanceScale) * toLightScreen / screen_scale;

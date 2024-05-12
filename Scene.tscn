@@ -24,7 +24,7 @@ shader_parameter/apply_distance_fade = true
 shader_parameter/object_height = null
 shader_parameter/shadows = true
 shader_parameter/soft_shadows = true
-shader_parameter/light_radius = 20.0
+shader_parameter/light_radius = 40.0
 shader_parameter/shadow_march_count = 256
 shader_parameter/shadow_march_min_step = 0.05
 shader_parameter/shadow_march_step_scale = 1.0
@@ -249,7 +249,8 @@ anchor_mode = 0
 metadata/_edit_lock_ = true
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
-position = Vector2(785, 354)
+position = Vector2(827, 316)
+energy = 3.0
 range_layer_min = -10
 range_layer_max = 10
 shadow_filter = 2
