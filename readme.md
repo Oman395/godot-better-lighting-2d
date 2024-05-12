@@ -13,6 +13,8 @@ Relatively basic shader that's pretty much a drop-in with the existing godot 2d 
 
 - apply_distance_fade: Whether to apply distance fading to lights
 
+- object_height: The height of the object. Mostly changes distance fade and normals.
+
 - shadows: Whether to use shadows at all
 
 - soft_shadows: Whether shadows should be hard or soft
